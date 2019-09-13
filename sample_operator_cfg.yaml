@@ -1,0 +1,400 @@
+#
+# Copyright 2019 New Relic Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+---
+apiVersion: "config.istio.io/v1alpha2"
+kind: handler
+metadata:
+ name: newrelic-handler
+ namespace: istio-system
+spec:
+  adapter: newrelic
+  connection:
+    address: ":55912"
+    # address: "newrelic-istio-adapter.newrelic-istio-adapter.svc.cluster.local:80"
+    # authentication:
+    #   mutual:
+    #     private_key: "/tmp/grpc-test-key-cert/mixer.key"
+    #     client_certificate: "/tmp/grpc-test-key-cert/mixer.crt"
+    #     ca_certificates: "/tmp/grpc-test-key-cert/ca.pem"
+  params:
+    namespace: istio
+    metrics:
+      requestduration.instance.istio-system:
+        name: request.duration.seconds
+        type: SUMMARY
+      requestsize.instance.istio-system:
+        name: request.bytes
+        type: GAUGE
+      requestcount.instance.istio-system:
+        name: request.total
+        type: COUNT
+      responsesize.instance.istio-system:
+        name: response.bytes
+        type: GAUGE
+      tcpbytesent.instance.istio-system:
+        name: tcp.sent.bytes
+        type: COUNT
+      tcpbytereceived.instance.istio-system:
+        name: tcp.received.bytes
+        type: COUNT
+      tcpconnectionsopened.instance.istio-system:
+        name: tcp.connections.opened
+        type: COUNT
+      tcpconnectionsclosed.instance.istio-system:
+        name: tcp.connections.closed
+        type: COUNT
+---
+apiVersion: "config.istio.io/v1alpha2"
+kind: instance
+metadata:
+  name: requestcount
+  namespace: istio-system
+spec:
+  template: metric
+  params:
+    value: "1"
+    dimensions:
+      reporter: conditional((context.reporter.kind | "inbound") == "outbound", "source", "destination")
+      service.name: conditional((context.reporter.kind | "inbound") == "outbound", source.workload.name | "unknown", destination.workload.name | "unknown")
+      source.workload: source.workload.name | "unknown"
+      source.workload.namespace: source.workload.namespace | "unknown"
+      source.principal: source.principal | "unknown"
+      source.app: source.labels["app"] | "unknown"
+      source.version: source.labels["version"] | "unknown"
+      destination.workload: destination.workload.name | "unknown"
+      destination.workload.namespace: destination.workload.namespace | "unknown"
+      destination.principal: destination.principal | "unknown"
+      destination.app: destination.labels["app"] | "unknown"
+      destination.version: destination.labels["version"] | "unknown"
+      destination.service: destination.service.host | "unknown"
+      destination.service.name: destination.service.name | "unknown"
+      destination.service.namespace: destination.service.namespace | "unknown"
+      request.protocol: api.protocol | context.protocol | "unknown"
+      response.code: response.code | 200
+      response.flags: context.proxy_error_code | "-"
+      connection.securityPolicy: conditional((context.reporter.kind | "inbound") == "outbound", "unknown", conditional(connection.mtls | false, "mutual_tls", "none"))
+---
+apiVersion: "config.istio.io/v1alpha2"
+kind: instance
+metadata:
+  name: requestsize
+  namespace: istio-system
+spec:
+  template: metric
+  params:
+    value: request.size | 0
+    dimensions:
+      reporter: conditional((context.reporter.kind | "inbound") == "outbound", "source", "destination")
+      service.name: conditional((context.reporter.kind | "inbound") == "outbound", source.workload.name | "unknown", destination.workload.name | "unknown")
+      source.workload: source.workload.name | "unknown"
+      source.workload.namespace: source.workload.namespace | "unknown"
+      source.principal: source.principal | "unknown"
+      source.app: source.labels["app"] | "unknown"
+      source.version: source.labels["version"] | "unknown"
+      destination.workload: destination.workload.name | "unknown"
+      destination.workload.namespace: destination.workload.namespace | "unknown"
+      destination.principal: destination.principal | "unknown"
+      destination.app: destination.labels["app"] | "unknown"
+      destination.version: destination.labels["version"] | "unknown"
+      destination.service: destination.service.host | "unknown"
+      destination.service.name: destination.service.name | "unknown"
+      destination.service.namespace: destination.service.namespace | "unknown"
+      request.protocol: api.protocol | context.protocol | "unknown"
+      response.code: response.code | 200
+      response.flags: context.proxy_error_code | "-"
+      connection.securityPolicy: conditional((context.reporter.kind | "inbound") == "outbound", "unknown", conditional(connection.mtls | false, "mutual_tls", "none"))
+---
+apiVersion: "config.istio.io/v1alpha2"
+kind: instance
+metadata:
+  name: requestduration
+  namespace: istio-system
+spec:
+  template: metric
+  params:
+    value: response.duration | "0ms"
+    dimensions:
+      reporter: conditional((context.reporter.kind | "inbound") == "outbound", "source", "destination")
+      service.name: conditional((context.reporter.kind | "inbound") == "outbound", source.workload.name | "unknown", destination.workload.name | "unknown")
+      source.workload: source.workload.name | "unknown"
+      source.workload.namespace: source.workload.namespace | "unknown"
+      source.principal: source.principal | "unknown"
+      source.app: source.labels["app"] | "unknown"
+      source.version: source.labels["version"] | "unknown"
+      destination.workload: destination.workload.name | "unknown"
+      destination.workload.namespace: destination.workload.namespace | "unknown"
+      destination.principal: destination.principal | "unknown"
+      destination.app: destination.labels["app"] | "unknown"
+      destination.version: destination.labels["version"] | "unknown"
+      destination.service: destination.service.host | "unknown"
+      destination.service.name: destination.service.name | "unknown"
+      destination.service.namespace: destination.service.namespace | "unknown"
+      request.protocol: api.protocol | context.protocol | "unknown"
+      response.code: response.code | 200
+      response.flags: context.proxy_error_code | "-"
+      connection.securityPolicy: conditional((context.reporter.kind | "inbound") == "outbound", "unknown", conditional(connection.mtls | false, "mutual_tls", "none"))
+---
+apiVersion: "config.istio.io/v1alpha2"
+kind: instance
+metadata:
+  name: responsesize
+  namespace: istio-system
+spec:
+  template: metric
+  params:
+    value: response.size | 0
+    dimensions:
+      reporter: conditional((context.reporter.kind | "inbound") == "outbound", "source", "destination")
+      service.name: conditional((context.reporter.kind | "inbound") == "outbound", source.workload.name | "unknown", destination.workload.name | "unknown")
+      source.workload: source.workload.name | "unknown"
+      source.workload.namespace: source.workload.namespace | "unknown"
+      source.principal: source.principal | "unknown"
+      source.app: source.labels["app"] | "unknown"
+      source.version: source.labels["version"] | "unknown"
+      destination.workload: destination.workload.name | "unknown"
+      destination.workload.namespace: destination.workload.namespace | "unknown"
+      destination.principal: destination.principal | "unknown"
+      destination.app: destination.labels["app"] | "unknown"
+      destination.version: destination.labels["version"] | "unknown"
+      destination.service: destination.service.host | "unknown"
+      destination.service.name: destination.service.name | "unknown"
+      destination.service.namespace: destination.service.namespace | "unknown"
+      request.protocol: api.protocol | context.protocol | "unknown"
+      response.code: response.code | 200
+      response.flags: context.proxy_error_code | "-"
+      connection.securityPolicy: conditional((context.reporter.kind | "inbound") == "outbound", "unknown", conditional(connection.mtls | false, "mutual_tls", "none"))
+---
+apiVersion: "config.istio.io/v1alpha2"
+kind: instance
+metadata:
+  name: tcpbytesent
+  namespace: istio-system
+spec:
+  template: metric
+  params:
+    value: connection.sent.bytes | 0
+    dimensions:
+      reporter: conditional((context.reporter.kind | "inbound") == "outbound", "source", "destination")
+      service.name: conditional((context.reporter.kind | "inbound") == "outbound", source.workload.name | "unknown", destination.workload.name | "unknown")
+      source.workload: source.workload.name | "unknown"
+      source.workload.namespace: source.workload.namespace | "unknown"
+      source.principal: source.principal | "unknown"
+      source.app: source.labels["app"] | "unknown"
+      source.version: source.labels["version"] | "unknown"
+      destination.workload: destination.workload.name | "unknown"
+      destination.workload.namespace: destination.workload.namespace | "unknown"
+      destination.principal: destination.principal | "unknown"
+      destination.app: destination.labels["app"] | "unknown"
+      destination.version: destination.labels["version"] | "unknown"
+      destination.service: destination.service.host | "unknown"
+      destination.service.name: destination.service.name | "unknown"
+      destination.service.namespace: destination.service.namespace | "unknown"
+      connection.securityPolicy: conditional((context.reporter.kind | "inbound") == "outbound", "unknown", conditional(connection.mtls | false, "mutual_tls", "none"))
+      response.flags: context.proxy_error_code | "-"
+---
+apiVersion: "config.istio.io/v1alpha2"
+kind: instance
+metadata:
+  name: tcpbytereceived
+  namespace: istio-system
+spec:
+  template: metric
+  params:
+    value: connection.received.bytes | 0
+    dimensions:
+      reporter: conditional((context.reporter.kind | "inbound") == "outbound", "source", "destination")
+      service.name: conditional((context.reporter.kind | "inbound") == "outbound", source.workload.name | "unknown", destination.workload.name | "unknown")
+      source.workload: source.workload.name | "unknown"
+      source.workload.namespace: source.workload.namespace | "unknown"
+      source.principal: source.principal | "unknown"
+      source.app: source.labels["app"] | "unknown"
+      source.version: source.labels["version"] | "unknown"
+      destination.workload: destination.workload.name | "unknown"
+      destination.workload.namespace: destination.workload.namespace | "unknown"
+      destination.principal: destination.principal | "unknown"
+      destination.app: destination.labels["app"] | "unknown"
+      destination.version: destination.labels["version"] | "unknown"
+      destination.service: destination.service.host | "unknown"
+      destination.service.name: destination.service.name | "unknown"
+      destination.service.namespace: destination.service.namespace | "unknown"
+      connection.securityPolicy: conditional((context.reporter.kind | "inbound") == "outbound", "unknown", conditional(connection.mtls | false, "mutual_tls", "none"))
+      response.flags: context.proxy_error_code | "-"
+---
+apiVersion: "config.istio.io/v1alpha2"
+kind: instance
+metadata:
+  name: tcpconnectionsopened
+  namespace: istio-system
+spec:
+  template: metric
+  params:
+    value: "1"
+    dimensions:
+      reporter: conditional((context.reporter.kind | "inbound") == "outbound", "source", "destination")
+      service.name: conditional((context.reporter.kind | "inbound") == "outbound", source.workload.name | "unknown", destination.workload.name | "unknown")
+      source.workload: source.workload.name | "unknown"
+      source.workload.namespace: source.workload.namespace | "unknown"
+      source.principal: source.principal | "unknown"
+      source.app: source.labels["app"] | "unknown"
+      source.version: source.labels["version"] | "unknown"
+      destination.workload: destination.workload.name | "unknown"
+      destination.workload.namespace: destination.workload.namespace | "unknown"
+      destination.principal: destination.principal | "unknown"
+      destination.app: destination.labels["app"] | "unknown"
+      destination.version: destination.labels["version"] | "unknown"
+      destination.service: destination.service.name | "unknown"
+      destination.service.name: destination.service.name | "unknown"
+      destination.service.namespace: destination.service.namespace | "unknown"
+      connection.securityPolicy: conditional((context.reporter.kind | "inbound") == "outbound", "unknown", conditional(connection.mtls | false, "mutual_tls", "none"))
+      response.flags: context.proxy_error_code | "-"
+---
+apiVersion: "config.istio.io/v1alpha2"
+kind: instance
+metadata:
+  name: tcpconnectionsclosed
+  namespace: istio-system
+spec:
+  template: metric
+  params:
+    value: "1"
+    dimensions:
+      reporter: conditional((context.reporter.kind | "inbound") == "outbound", "source", "destination")
+      service.name: conditional((context.reporter.kind | "inbound") == "outbound", source.workload.name | "unknown", destination.workload.name | "unknown")
+      source.workload: source.workload.name | "unknown"
+      source.workload.namespace: source.workload.namespace | "unknown"
+      source.principal: source.principal | "unknown"
+      source.app: source.labels["app"] | "unknown"
+      source.version: source.labels["version"] | "unknown"
+      destination.workload: destination.workload.name | "unknown"
+      destination.workload.namespace: destination.workload.namespace | "unknown"
+      destination.principal: destination.principal | "unknown"
+      destination.app: destination.labels["app"] | "unknown"
+      destination.version: destination.labels["version"] | "unknown"
+      destination.service: destination.service.name | "unknown"
+      destination.service.name: destination.service.name | "unknown"
+      destination.service.namespace: destination.service.namespace | "unknown"
+      connection.securityPolicy: conditional((context.reporter.kind | "inbound") == "outbound", "unknown", conditional(connection.mtls | false, "mutual_tls", "none"))
+      response.flags: context.proxy_error_code | "-"
+---
+apiVersion: config.istio.io/v1alpha2
+kind: instance
+metadata:
+  name: "newrelic-span"
+  namespace: istio-system
+spec:
+  template: tracespan
+  params:
+    apiProtocol: api.protocol | ""
+    clientSpan: (context.reporter.kind | "inbound") == "outbound"
+    destinationIp: destination.ip | ip("0.0.0.0")
+    destinationName: destination.workload.name | "unknown"
+    endTime: response.time
+    httpStatusCode: response.code | 0
+    parentSpanId: request.headers["x-b3-parentspanid"] | ""
+    requestSize: request.size | 0
+    requestTotalSize: request.total_size | 0
+    responseSize: response.size | 0
+    responseTotalSize: response.total_size | 0
+    rewriteClientSpanId: "false"
+    sourceIp: source.ip | ip("0.0.0.0")
+    sourceName: source.workload.name | "unknown"
+    spanId: request.headers["x-b3-spanid"] | ""
+    spanName: destination.workload.name | destination.service.name | "unknown"
+    spanTags:
+      api.name: api.service | "unknown"
+      api.version: api.version | "unknown"
+      destination.owner: destination.owner | "unknown"
+      destination.port: destination.port | 0
+      destination.service.name: destination.service.name | "unknown"
+      destination.service.namespace: destination.service.namespace | "unknown"
+      destination.workload.name: destination.workload.name | "unknown"
+      destination.workload.namespace: destination.workload.namespace | "unknown"
+      request.path: request.path | ""
+      request.operation: conditional((context.protocol | "unknown") == "grpc", request.path
+        | "unknown", request.method | "unknown")
+      request.protocol: context.protocol | "unknown"
+      connection.securityPolicy: conditional((context.reporter.kind | "inbound") ==
+        "outbound", "unknown", conditional(connection.mtls | false, "mutual_tls", "none"))
+      source.owner: source.owner | "unknown"
+      source.workload.name: source.workload.name | "unknown"
+      source.workload.namespace: source.workload.namespace | "unknown"
+    startTime: request.time
+    traceId: request.headers["x-b3-traceid"] | ""
+---
+apiVersion: "config.istio.io/v1alpha2"
+kind: rule
+metadata:
+  name: newrelic-http
+  namespace: istio-system
+spec:
+  match: (context.protocol == "http" || context.protocol == "grpc") && (match((request.useragent | "-"), "kube-probe*") == false)
+  actions:
+  - handler: newrelic-handler
+    instances:
+    - requestcount
+    - requestsize
+    - requestduration
+    - responsesize
+---
+apiVersion: "config.istio.io/v1alpha2"
+kind: rule
+metadata:
+  name: newrelic-tcp
+  namespace: istio-system
+spec:
+  match: context.protocol == "tcp"
+  actions:
+  - handler: newrelic-handler
+    instances:
+    - tcpbytesent
+    - tcpbytereceived
+---
+apiVersion: "config.istio.io/v1alpha2"
+kind: rule
+metadata:
+  name: newrelic-tcpconnectionopen
+  namespace: istio-system
+spec:
+  match: context.protocol == "tcp" && ((connection.event | "na") == "open")
+  actions:
+  - handler: newrelic-handler
+    instances:
+    - tcpconnectionsopened
+---
+apiVersion: "config.istio.io/v1alpha2"
+kind: rule
+metadata:
+  name: newrelic-tcpconnectionclosed
+  namespace: istio-system
+spec:
+  match: context.protocol == "tcp" && ((connection.event | "na") == "close")
+  actions:
+  - handler: newrelic-handler
+    instances:
+    - tcpconnectionsclosed
+---
+# apiVersion: "config.istio.io/v1alpha2"
+# kind: rule
+# metadata:
+#   name: "newrelic-tracing"
+#   namespace: istio-system
+# spec:
+#   match: (context.protocol == "http" || context.protocol == "grpc") && destination.workload.name != "istio-telemetry" && destination.workload.name != "istio-pilot" && ((request.headers["x-b3-traceid"] | "0") == "1")
+#   actions:
+#   - handler: newrelic-handler
+#     instances:
+#     - "newrelic-span"
+# ---

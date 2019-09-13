@@ -1,0 +1,8 @@
+# Ignore Docker build configuration.
+.dockerignore
+Dockerfile
+
+# Ignore git project releated files.
+.git
+.gitignore
+.github

@@ -1,0 +1,682 @@
+# Copyright 2019 New Relic Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
+
+# Default values for newrelic-istio-adapter.
+
+# Override the Chart name.
+# Also used as the label `app.kubernetes.io/name` value for all resources.
+nameOverride: ""
+
+# Override the naming of `newrelic-istio-adapter` namespace resources.
+# Enables multiple `newrelic-istio-adapter` versions to be deployed simultaneously.
+fullnameOverride: ""
+
+# Namespace of the Istio control plane resources.
+istioNamespace: istio-system
+
+# Name used by `newrelic-istio-adapter`, a unique Kubernetes cluster identifier for metrics.
+# Corresponds to the cluster.name attribute of metrics.
+clusterName: istio-cluster
+
+# Override the New Relic Metrics API endpoint (used for debugging).
+#metricsHost: ""
+
+# Override the New Relic Trace API endpoint (used for debugging).
+#spansHost: ""
+
+authentication:
+  # Specify if this Chart will manage the secret containing the
+  # authentication credentials to New Relic that the adapter uses.
+  # Setting this to `false` mean you will manually handle secrets.
+  manageSecret: true
+
+  # If `manageSecret` is true the following must to be provided.
+  #
+  # Plaintext New Relic Insights Insert API key.
+  apiKey: ""
+
+  # Kubernetes Secret resource name.
+  #
+  # This is used to override the default name of the authentication
+  # credential containing Opaque secret.
+  #
+  # This is useful if `manageSecret` is `false` and you plan to use a secret
+  # that does not match the name of the expected secret (defaults to the
+  # full name of this release). Additionally, if you want to use a different
+  # scheme for secret naming this provides that functionality.
+  #
+  # The Kubernetes Secret must contain keys:
+  #   NEW_RELIC_API_KEY
+  secretNameOverride: ""
+
+image:
+  # Repository for container image.
+  repository: newrelic/newrelic-istio-adapter
+  # Image tag.
+  tag: latest
+  # Image pull policy.
+  pullPolicy: IfNotPresent
+
+service:
+  # The `newrelic-istio-adapter` Kubernetes Service type.
+  type: ClusterIP
+  # The `newrelic-istio-adapter` Kubernetes Service port.
+  port: 80
+
+# Kubernetes Deployment relica count definition.
+replicaCount: 1
+
+# Kubernetes Pod resource requests & limits resource definition.
+resources: {}
+
+# Kubernetes Deployment nodeSelector definition.
+nodeSelector: {}
+
+# Kubernetes Deployment tolerations definition.
+tolerations: []
+
+# Kubernetes Deployment affinity definition.
+affinity: {}
+
+# Istio telemetry configuration
+telemetry:
+
+  # Prefixed namespace for all metrics sent to New Relic.
+  namespace: istio
+
+  # Envoy to Mixer attribute value mapping
+  # https://istio.io/docs/reference/config/policy-and-telemetry/attribute-vocabulary/
+  attributes:
+    source.ip:
+      valueType: IP_ADDRESS
+    source.labels:
+      valueType: STRING_MAP
+    source.name:
+      valueType: STRING
+    source.namespace:
+      valueType: STRING
+    source.owner:
+      valueType: STRING
+    source.serviceAccount:
+      valueType: STRING
+    source.services:
+      valueType: STRING
+    source.workload.uid:
+      valueType: STRING
+    source.workload.name:
+      valueType: STRING
+    source.workload.namespace:
+      valueType: STRING
+    destination.ip:
+      valueType: IP_ADDRESS
+    destination.labels:
+      valueType: STRING_MAP
+    destination.metadata:
+      valueType: STRING_MAP
+    destination.name:
+      valueType: STRING
+    destination.namespace:
+      valueType: STRING
+    destination.owner:
+      valueType: STRING
+    destination.service.uid:
+      valueType: STRING
+    destination.service.name:
+      valueType: STRING
+    destination.service.namespace:
+      valueType: STRING
+    destination.service.host:
+      valueType: STRING
+    destination.serviceAccount:
+      valueType: STRING
+    destination.workload.uid:
+      valueType: STRING
+    destination.workload.name:
+      valueType: STRING
+    destination.workload.namespace:
+      valueType: STRING
+    destination.container.name:
+      valueType: STRING
+    origin.ip:
+      valueType: IP_ADDRESS
+    origin.uid:
+      valueType: STRING
+    origin.user:
+      valueType: STRING
+    request.headers:
+      valueType: STRING_MAP
+    request.id:
+      valueType: STRING
+    request.host:
+      valueType: STRING
+    request.method:
+      valueType: STRING
+    request.path:
+      valueType: STRING
+    request.url_path:
+      valueType: STRING
+    request.query_params:
+      valueType: STRING_MAP
+    request.reason:
+      valueType: STRING
+    request.referer:
+      valueType: STRING
+    request.scheme:
+      valueType: STRING
+    request.total_size:
+      valueType: INT64
+    request.size:
+      valueType: INT64
+    request.time:
+      valueType: TIMESTAMP
+    request.useragent:
+      valueType: STRING
+    response.code:
+      valueType: INT64
+    response.duration:
+      valueType: DURATION
+    response.headers:
+      valueType: STRING_MAP
+    response.total_size:
+      valueType: INT64
+    response.size:
+      valueType: INT64
+    response.time:
+      valueType: TIMESTAMP
+    response.grpc_status:
+      valueType: STRING
+    response.grpc_message:
+      valueType: STRING
+    source.uid:
+      valueType: STRING
+    source.user: # DEPRECATED
+      valueType: STRING
+    source.principal:
+      valueType: STRING
+    destination.uid:
+      valueType: STRING
+    destination.principal:
+      valueType: STRING
+    destination.port:
+      valueType: INT64
+    connection.event:
+      valueType: STRING
+    connection.id:
+      valueType: STRING
+    connection.received.bytes:
+      valueType: INT64
+    connection.received.bytes_total:
+      valueType: INT64
+    connection.sent.bytes:
+      valueType: INT64
+    connection.sent.bytes_total:
+      valueType: INT64
+    connection.duration:
+      valueType: DURATION
+    connection.mtls:
+      valueType: BOOL
+    connection.requested_server_name:
+      valueType: STRING
+    context.protocol:
+      valueType: STRING
+    context.proxy_error_code:
+      valueType: STRING
+    context.timestamp:
+      valueType: TIMESTAMP
+    context.time:
+      valueType: TIMESTAMP
+    # Deprecated, kept for compatibility
+    context.reporter.local:
+      valueType: BOOL
+    context.reporter.kind:
+      valueType: STRING
+    context.reporter.uid:
+      valueType: STRING
+    api.service:
+      valueType: STRING
+    api.version:
+      valueType: STRING
+    api.operation:
+      valueType: STRING
+    api.protocol:
+      valueType: STRING
+    request.auth.principal:
+      valueType: STRING
+    request.auth.audiences:
+      valueType: STRING
+    request.auth.presenter:
+      valueType: STRING
+    request.auth.claims:
+      valueType: STRING_MAP
+    request.auth.raw_claims:
+      valueType: STRING
+    request.api_key:
+      valueType: STRING
+    rbac.permissive.response_code:
+      valueType: STRING
+    rbac.permissive.effective_policy_id:
+      valueType: STRING
+    check.error_code:
+      valueType: INT64
+    check.error_message:
+      valueType: STRING
+    check.cache_hit:
+      valueType: BOOL
+    quota.cache_hit:
+      valueType: BOOL
+
+  # https://istio.io/docs/reference/config/policy-and-telemetry/templates/tracespan/
+  # # The key name is the name of the Istio instance using the tracespan template.
+  # INSTANCE_NAME:
+  #   # Trace ID is the unique identifier for a trace. All spans from the
+  #   # same trace share the same Trace ID.
+  #   #
+  #   # Required.
+  #   traceId	string
+  #
+  #   # Span ID is the unique identifier for a span within a trace. It is
+  #   # assigned when the span is created.
+  #   #
+  #   # Optional.
+  #   spanId	string
+  #
+  #   # Parent Span ID is the unique identifier for a parent span of this
+  #   # span instance. If this is a root span, then this field MUST be
+  #   # empty.
+  #   #
+  #   # Optional.
+  #   parentSpanId	string
+  #
+  #   # Span name is a description of the span’s operation.
+  #   #
+  #   # For example, the name can be a qualified method name or a file name
+  #   # and a line number where the operation is called. A best practice is
+  #   # to use the same display name within an application and at the same
+  #   # call point. This makes it easier to correlate spans in different
+  #   # traces.
+  #   #
+  #   # Required.
+  #   spanName	string
+  #
+  #   # The start time of the span.
+  #   #
+  #   # Required.
+  #   startTime	istio.policy.v1beta1.TimeStamp
+  #
+  #   # The end time of the span.
+  #   #
+  #   # Required.
+  #   endTime	istio.policy.v1beta1.TimeStamp
+  #
+  #   # Span tags are a set of < key, value > pairs that provide metadata
+  #   # for the entire span. The values can be specified in the form of
+  #   # expressions.
+  #   #
+  #   # Optional.
+  #   spanTags	map<string, istio.policy.v1beta1.Value>
+  #
+  #   # HTTP status code used to set the span status. If unset or set to 0,
+  #   # the span status will be assumed to be successful.
+  #   #
+  #   # Optional.
+  #   httpStatusCode	int64
+  #
+  #   # client_span indicates the span kind. True for client spans and False
+  #   # or not provided for server spans. Using bool instead of enum is a
+  #   # temporary work around since mixer expression language does not yet
+  #   # support enum type.
+  #   #
+  #   # Optional.
+  #   clientSpan	bool
+  #
+  #   # rewriteclientspan_id is used to indicate whether to create a new
+  #   # client span id to accommodate Zipkin shared span model. Some tracing
+  #   # systems like Stackdriver separates a RPC into client span and server
+  #   # span. To solve this incompatibility, deterministically rewriting
+  #   # both span id of client span and parent span id of server span to the
+  #   # same newly generated id.
+  #   #
+  #   # Optional.
+  #   rewriteClientSpanId	bool
+  #
+  #   # Identifies the source (client side) of this span. Should usually be
+  #   # set to source.workload.name.
+  #   #
+  #   # Optional.
+  #   sourceName	string
+  #
+  #   # Client IP address. Should usually be set to source.ip.
+  #   #
+  #   # Optional.
+  #   sourceIp	istio.policy.v1beta1.IPAddress
+  #
+  #   # Identifies the destination (server side) of this span. Should
+  #   # usually be set to destination.workload.name.
+  #   #
+  #   # Optional.
+  #   destinationName	string
+  #
+  #   # Server IP address. Should usually be set to destination.ip.
+  #   #
+  #   # Optional.
+  #   destinationIp	istio.policy.v1beta1.IPAddress
+  #
+  #   # Request body size. Should usually be set to request.size.
+  #   #
+  #   # Optional.
+  #   requestSize	int64
+  #
+  #   # Total request size (headers and body). Should usually be set to
+  #   # request.total_size.
+  #   #
+  #   # Optional.
+  #   requestTotalSize	int64
+  #
+  #   # Response body size. Should usually be set to response.size.
+  #   #
+  #   # Optional.
+  #   responseSize	int64
+  #
+  #   # Response total size (headers and body). Should usually be set to
+  #   # response.total_size.
+  #   #
+  #   # Optional.
+  #   responseTotalSize	int64
+  #
+  #   # One of “http”, “https”, or “grpc” or any other value of the
+  #   # api.protocol attribute. Should usually be set to api.protocol.
+  #   #
+  #   # Optional.
+  #   apiProtocol	string
+  traces:
+
+    newrelic-span:
+      traceId: request.headers["x-b3-traceid"] | ""
+      spanId: request.headers["x-b3-spanid"] | ""
+      parentSpanId: request.headers["x-b3-parentspanid"] | ""
+      spanName: destination.workload.name | destination.service.name | "unknown"
+      startTime: request.time
+      endTime: response.time
+      httpStatusCode: response.code | 0
+      clientSpan: (context.reporter.kind | "inbound") == "outbound"
+      rewriteClientSpanId: "false"
+      sourceName: source.workload.name | "unknown"
+      sourceIp: source.ip | ip("0.0.0.0")
+      destinationName: destination.workload.name | "unknown"
+      destinationIp: destination.ip | ip("0.0.0.0")
+      requestSize: request.size | 0
+      requestTotalSize: request.total_size | 0
+      responseSize: response.size | 0
+      responseTotalSize: response.total_size | 0
+      apiProtocol: api.protocol | ""
+      spanTags:
+        api.name: api.service | "unknown"
+        api.version: api.version | "unknown"
+        destination.owner: destination.owner | "unknown"
+        destination.port: destination.port | 0
+        destination.service.name: destination.service.name | "unknown"
+        destination.service.namespace: destination.service.namespace | "unknown"
+        destination.workload.name: destination.workload.name | "unknown"
+        destination.workload.namespace: destination.workload.namespace | "unknown"
+        request.path: request.path | ""
+        request.operation: conditional((context.protocol | "unknown") == "grpc", request.path | "unknown", request.method | "unknown")
+        request.protocol: context.protocol | "unknown"
+        connection.securityPolicy: conditional((context.reporter.kind | "inbound") == "outbound", "unknown", conditional(connection.mtls | false, "mutual_tls", "none"))
+        source.owner: source.owner | "unknown"
+        source.workload.name: source.workload.name | "unknown"
+        source.workload.namespace: source.workload.namespace | "unknown"
+
+  # https://istio.io/docs/reference/config/policy-and-telemetry/templates/metric/
+  # # The key name is the name of the Istio instance using the metric template.
+  # INSTANCE_NAME:
+  #   # The name field is the name passed to New Relic for the metric
+  #   name: NEW_RELIC_NAME
+  #   # The type of Dimensional Metric in New Relic the metric is converted to.
+  #   type: NEW_RELIC_TYPE
+  #   # The interpreted instance value
+  #   value: INSTANCE_VALUE
+  #   # New Relic metric attributes and instance dimensions.
+  #   dimensions:
+  #     # Interpreted instance dimensions and New Relic metric attributes.
+  #     key: value
+  #
+  metrics:
+
+    newrelic-request-count:
+      name: "request.total"
+      type: COUNT
+      value: "1"
+      dimensions:
+        reporter: conditional((context.reporter.kind | "inbound") == "outbound", "source", "destination")
+        service.name: conditional((context.reporter.kind | "inbound") == "outbound", source.workload.name | "unknown", destination.workload.name | "unknown")
+        source.workload: source.workload.name | "unknown"
+        source.workload.namespace: source.workload.namespace | "unknown"
+        source.principal: source.principal | "unknown"
+        source.app: source.labels["app"] | "unknown"
+        source.version: source.labels["version"] | "unknown"
+        destination.workload: destination.workload.name | "unknown"
+        destination.workload.namespace: destination.workload.namespace | "unknown"
+        destination.principal: destination.principal | "unknown"
+        destination.app: destination.labels["app"] | "unknown"
+        destination.version: destination.labels["version"] | "unknown"
+        destination.service: destination.service.host | "unknown"
+        destination.service.name: destination.service.name | "unknown"
+        destination.service.namespace: destination.service.namespace | "unknown"
+        request.protocol: api.protocol | context.protocol | "unknown"
+        response.code: response.code | 200
+        response.flags: context.proxy_error_code | "-"
+        connection.securityPolicy: conditional((context.reporter.kind | "inbound") == "outbound", "unknown", conditional(connection.mtls | false, "mutual_tls", "none"))
+
+    newrelic-request-size:
+      name: "request.bytes"
+      type: GAUGE
+      value: request.size | 0
+      dimensions:
+        reporter: conditional((context.reporter.kind | "inbound") == "outbound", "source", "destination")
+        service.name: conditional((context.reporter.kind | "inbound") == "outbound", source.workload.name | "unknown", destination.workload.name | "unknown")
+        source.workload: source.workload.name | "unknown"
+        source.workload.namespace: source.workload.namespace | "unknown"
+        source.principal: source.principal | "unknown"
+        source.app: source.labels["app"] | "unknown"
+        source.version: source.labels["version"] | "unknown"
+        destination.workload: destination.workload.name | "unknown"
+        destination.workload.namespace: destination.workload.namespace | "unknown"
+        destination.principal: destination.principal | "unknown"
+        destination.app: destination.labels["app"] | "unknown"
+        destination.version: destination.labels["version"] | "unknown"
+        destination.service: destination.service.host | "unknown"
+        destination.service.name: destination.service.name | "unknown"
+        destination.service.namespace: destination.service.namespace | "unknown"
+        request.protocol: api.protocol | context.protocol | "unknown"
+        response.code: response.code | 200
+        response.flags: context.proxy_error_code | "-"
+        connection.securityPolicy: conditional((context.reporter.kind | "inbound") == "outbound", "unknown", conditional(connection.mtls | false, "mutual_tls", "none"))
+
+    newrelic-request-duration:
+      name: "request.duration.milliseconds"
+      type: SUMMARY
+      value: response.duration | "0ms"
+      dimensions:
+        reporter: conditional((context.reporter.kind | "inbound") == "outbound", "source", "destination")
+        service.name: conditional((context.reporter.kind | "inbound") == "outbound", source.workload.name | "unknown", destination.workload.name | "unknown")
+        source.workload: source.workload.name | "unknown"
+        source.workload.namespace: source.workload.namespace | "unknown"
+        source.principal: source.principal | "unknown"
+        source.app: source.labels["app"] | "unknown"
+        source.version: source.labels["version"] | "unknown"
+        destination.workload: destination.workload.name | "unknown"
+        destination.workload.namespace: destination.workload.namespace | "unknown"
+        destination.principal: destination.principal | "unknown"
+        destination.app: destination.labels["app"] | "unknown"
+        destination.version: destination.labels["version"] | "unknown"
+        destination.service: destination.service.host | "unknown"
+        destination.service.name: destination.service.name | "unknown"
+        destination.service.namespace: destination.service.namespace | "unknown"
+        request.protocol: api.protocol | context.protocol | "unknown"
+        response.code: response.code | 200
+        response.flags: context.proxy_error_code | "-"
+        connection.securityPolicy: conditional((context.reporter.kind | "inbound") == "outbound", "unknown", conditional(connection.mtls | false, "mutual_tls", "none"))
+
+    newrelic-response-size:
+      name: "response.bytes"
+      type: GAUGE
+      value: response.size | 0
+      dimensions:
+        reporter: conditional((context.reporter.kind | "inbound") == "outbound", "source", "destination")
+        service.name: conditional((context.reporter.kind | "inbound") == "outbound", source.workload.name | "unknown", destination.workload.name | "unknown")
+        source.workload: source.workload.name | "unknown"
+        source.workload.namespace: source.workload.namespace | "unknown"
+        source.principal: source.principal | "unknown"
+        source.app: source.labels["app"] | "unknown"
+        source.version: source.labels["version"] | "unknown"
+        destination.workload: destination.workload.name | "unknown"
+        destination.workload.namespace: destination.workload.namespace | "unknown"
+        destination.principal: destination.principal | "unknown"
+        destination.app: destination.labels["app"] | "unknown"
+        destination.version: destination.labels["version"] | "unknown"
+        destination.service: destination.service.host | "unknown"
+        destination.service.name: destination.service.name | "unknown"
+        destination.service.namespace: destination.service.namespace | "unknown"
+        request.protocol: api.protocol | context.protocol | "unknown"
+        response.code: response.code | 200
+        response.flags: context.proxy_error_code | "-"
+        connection.securityPolicy: conditional((context.reporter.kind | "inbound") == "outbound", "unknown", conditional(connection.mtls | false, "mutual_tls", "none"))
+
+    newrelic-bytes-sent:
+      name: "tcp.sent.bytes"
+      type: COUNT
+      value: connection.sent.bytes | 0
+      dimensions:
+        reporter: conditional((context.reporter.kind | "inbound") == "outbound", "source", "destination")
+        service.name: conditional((context.reporter.kind | "inbound") == "outbound", source.workload.name | "unknown", destination.workload.name | "unknown")
+        source.workload: source.workload.name | "unknown"
+        source.workload.namespace: source.workload.namespace | "unknown"
+        source.principal: source.principal | "unknown"
+        source.app: source.labels["app"] | "unknown"
+        source.version: source.labels["version"] | "unknown"
+        destination.workload: destination.workload.name | "unknown"
+        destination.workload.namespace: destination.workload.namespace | "unknown"
+        destination.principal: destination.principal | "unknown"
+        destination.app: destination.labels["app"] | "unknown"
+        destination.version: destination.labels["version"] | "unknown"
+        destination.service: destination.service.host | "unknown"
+        destination.service.name: destination.service.name | "unknown"
+        destination.service.namespace: destination.service.namespace | "unknown"
+        connection.securityPolicy: conditional((context.reporter.kind | "inbound") == "outbound", "unknown", conditional(connection.mtls | false, "mutual_tls", "none"))
+        response.flags: context.proxy_error_code | "-"
+
+    newrelic-bytes-received:
+      name: "tcp.received.bytes"
+      type: COUNT
+      value: connection.received.bytes | 0
+      dimensions:
+        reporter: conditional((context.reporter.kind | "inbound") == "outbound", "source", "destination")
+        service.name: conditional((context.reporter.kind | "inbound") == "outbound", source.workload.name | "unknown", destination.workload.name | "unknown")
+        source.workload: source.workload.name | "unknown"
+        source.workload.namespace: source.workload.namespace | "unknown"
+        source.principal: source.principal | "unknown"
+        source.app: source.labels["app"] | "unknown"
+        source.version: source.labels["version"] | "unknown"
+        destination.workload: destination.workload.name | "unknown"
+        destination.workload.namespace: destination.workload.namespace | "unknown"
+        destination.principal: destination.principal | "unknown"
+        destination.app: destination.labels["app"] | "unknown"
+        destination.version: destination.labels["version"] | "unknown"
+        destination.service: destination.service.host | "unknown"
+        destination.service.name: destination.service.name | "unknown"
+        destination.service.namespace: destination.service.namespace | "unknown"
+        connection.securityPolicy: conditional((context.reporter.kind | "inbound") == "outbound", "unknown", conditional(connection.mtls | false, "mutual_tls", "none"))
+        response.flags: context.proxy_error_code | "-"
+
+    newrelic-connections-opened:
+      name: "tcp.connections.opened"
+      type: COUNT
+      value: "1"
+      dimensions:
+        reporter: conditional((context.reporter.kind | "inbound") == "outbound", "source", "destination")
+        service.name: conditional((context.reporter.kind | "inbound") == "outbound", source.workload.name | "unknown", destination.workload.name | "unknown")
+        source.workload: source.workload.name | "unknown"
+        source.workload.namespace: source.workload.namespace | "unknown"
+        source.principal: source.principal | "unknown"
+        source.app: source.labels["app"] | "unknown"
+        source.version: source.labels["version"] | "unknown"
+        destination.workload: destination.workload.name | "unknown"
+        destination.workload.namespace: destination.workload.namespace | "unknown"
+        destination.principal: destination.principal | "unknown"
+        destination.app: destination.labels["app"] | "unknown"
+        destination.version: destination.labels["version"] | "unknown"
+        destination.service: destination.service.name | "unknown"
+        destination.service.name: destination.service.name | "unknown"
+        destination.service.namespace: destination.service.namespace | "unknown"
+        connection.securityPolicy: conditional((context.reporter.kind | "inbound") == "outbound", "unknown", conditional(connection.mtls | false, "mutual_tls", "none"))
+        response.flags: context.proxy_error_code | "-"
+
+    newrelic-connections-closed:
+      name: "tcp.connections.closed"
+      type: COUNT
+      value: "1"
+      dimensions:
+        reporter: conditional((context.reporter.kind | "inbound") == "outbound", "source", "destination")
+        service.name: conditional((context.reporter.kind | "inbound") == "outbound", source.workload.name | "unknown", destination.workload.name | "unknown")
+        source.workload: source.workload.name | "unknown"
+        source.workload.namespace: source.workload.namespace | "unknown"
+        source.principal: source.principal | "unknown"
+        source.app: source.labels["app"] | "unknown"
+        source.version: source.labels["version"] | "unknown"
+        destination.workload: destination.workload.name | "unknown"
+        destination.workload.namespace: destination.workload.namespace | "unknown"
+        destination.principal: destination.principal | "unknown"
+        destination.app: destination.labels["app"] | "unknown"
+        destination.version: destination.labels["version"] | "unknown"
+        destination.service: destination.service.name | "unknown"
+        destination.service.name: destination.service.name | "unknown"
+        destination.service.namespace: destination.service.namespace | "unknown"
+        connection.securityPolicy: conditional((context.reporter.kind | "inbound") == "outbound", "unknown", conditional(connection.mtls | false, "mutual_tls", "none"))
+        response.flags: context.proxy_error_code | "-"
+
+  # https://istio.io/docs/reference/config/policy-and-telemetry/istio.policy.v1beta1/
+  rules:
+
+    newrelic-http-connection:
+      match: (context.protocol == "http" || context.protocol == "grpc") && (match((request.useragent | "-"), "kube-probe*") == false)
+      instances:
+        - newrelic-request-count
+        - newrelic-request-size
+        - newrelic-request-duration
+        - newrelic-response-size
+
+    newrelic-tcp-connection:
+      match: context.protocol == "tcp"
+      instances:
+        - newrelic-bytes-sent
+        - newrelic-bytes-received
+
+    newrelic-tcp-connection-open:
+      match: context.protocol == "tcp" && ((connection.event | "na") == "open")
+      instances:
+        - newrelic-connections-opened
+
+    newrelic-tcp-connection-closed:
+      match: context.protocol == "tcp" && ((connection.event | "na") == "close")
+      instances:
+        - newrelic-connections-closed
+
+    ## Span instances from Istio are not sent to the adapter by default.
+    ## The following can be uncommented if spans for inter-service communication
+    ## should be sent to New Relic.
+    #newrelic-tracing:
+    #  match: (context.protocol == "http" || context.protocol == "grpc") && destination.workload.name != "istio-telemetry" && destination.workload.name != "istio-pilot" && ((request.headers["x-b3-sampled"] | "0") == "1")
+    #  instances:
+    #    - newrelic-span

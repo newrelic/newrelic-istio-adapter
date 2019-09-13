@@ -1,0 +1,113 @@
+{
+  "dashboard": {
+    "title": "New Relic Istio Adapter Template",
+    "icon": "line-chart",
+    "visibility": "all",
+    "editable": "editable_by_all",
+    "metadata": {
+      "version": 1
+    },
+    "filter": {
+      "event_types": [
+        "Metric"
+      ],
+      "attributes": [
+        "cluster.name",
+        "destination.service.name",
+        "source.app"
+      ]
+    },
+    "widgets": [
+      {
+        "visualization": "faceted_area_chart",
+        "layout": {
+          "width": 1,
+          "height": 2,
+          "row": 1,
+          "column": 1
+        },
+        "data": [
+          {
+            "nrql": "FROM Metric SELECT average(istio.request.total) WHERE destination.service.name != 'istio-telemetry' TIMESERIES max FACET source.app,destination.service.name LIMIT 100"
+          }
+        ],
+        "presentation": {
+          "title": "Request Volume",
+          "notes": null
+        }
+      },
+      {
+        "visualization": "faceted_area_chart",
+        "layout": {
+          "width": 1,
+          "height": 1,
+          "row": 1,
+          "column": 2
+        },
+        "data": [
+          {
+            "nrql": "FROM Metric SELECT sum(istio.request.total) WHERE destination.service.name != 'istio-telemetry' FACET response_code TIMESERIES max"
+          }
+        ],
+        "presentation": {
+          "title": "Request Response Code",
+          "notes": null
+        }
+      },
+      {
+        "visualization": "faceted_line_chart",
+        "layout": {
+          "width": 1,
+          "height": 1,
+          "row": 1,
+          "column": 3
+        },
+        "data": [
+          {
+            "nrql": "FROM Metric SELECT average(istio.request.duration.milliseconds) WHERE destination.service.name != 'istio-telemetry' TIMESERIES max FACET source.app,destination.service.name"
+          }
+        ],
+        "presentation": {
+          "title": "Request Duration [milliseconds]",
+          "notes": null
+        }
+      },
+      {
+        "visualization": "faceted_area_chart",
+        "layout": {
+          "width": 1,
+          "height": 1,
+          "row": 2,
+          "column": 2
+        },
+        "data": [
+          {
+            "nrql": "FROM Metric SELECT average(istio.request.bytes) WHERE destination.service.name != 'istio-telemetry' TIMESERIES max FACET source.app,destination.service.name"
+          }
+        ],
+        "presentation": {
+          "title": "Request Throughput [Bytes]",
+          "notes": null
+        }
+      },
+      {
+        "visualization": "faceted_area_chart",
+        "layout": {
+          "width": 1,
+          "height": 1,
+          "row": 2,
+          "column": 3
+        },
+        "data": [
+          {
+            "nrql": "FROM Metric SELECT average(istio.response.bytes) WHERE destination.service.name != 'istio-telemetry' TIMESERIES max FACET source.app,destination.service.name"
+          }
+        ],
+        "presentation": {
+          "title": "Response Throughput [Bytes]",
+          "notes": null
+        }
+      }
+    ]
+  }
+}
