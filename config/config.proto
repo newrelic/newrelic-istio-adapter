@@ -14,6 +14,14 @@
 
 syntax = "proto3";
 
+// $title: New Relic
+// $description: An Istio Mixer adapter to send telemetry data to New Relic.
+// $location: https://istio.io/docs/reference/config/policy-and-telemetry/adapters/newrelic.html
+// $provider: New Relic, Inc.
+// $source_link: https://github.com/newrelic/newrelic-istio-adapter
+// $latest_release_link: https://github.com/newrelic/newrelic-istio-adapter/releases
+// $supported_templates: metric, tracespan
+
 // An Istio Mixer adapter to send telemetry data to New Relic.
 package adapter.newrelic.config;
 
