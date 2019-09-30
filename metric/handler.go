@@ -17,10 +17,12 @@ package metric
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
-	"github.com/newrelic/newrelic-istio-adapter/internal/nrsdk/instrumentation"
 	"github.com/newrelic/newrelic-istio-adapter/config"
 	"github.com/newrelic/newrelic-istio-adapter/convert"
+	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	"istio.io/istio/mixer/pkg/adapter"
 	"istio.io/istio/mixer/template/metric"
 )
@@ -28,7 +30,7 @@ import (
 // Handler represents a processor that can handle metrics from Istio and transmit them to New Relic.
 type Handler struct {
 	logger  adapter.Logger
-	agg     *instrumentation.MetricAggregator
+	agg     *telemetry.MetricAggregator
 	metrics map[string]info
 }
 
@@ -37,38 +39,70 @@ type info struct {
 	mtype config.Params_MetricInfo_Type
 }
 
+type handleError struct {
+	Name string
+	Err  error
+}
+
+func (e *handleError) Error() string {
+	return fmt.Sprintf("failed to handle %q: %s", e.Name, e.Err)
+}
+
+type handleErrors []*handleError
+
+func (e handleErrors) Error() string {
+	if e == nil || len(e) == 0 {
+		return ""
+	}
+
+	var msg string
+	for _, err := range e {
+		msg += "\n"
+		msg += err.Error()
+	}
+	return msg
+}
+
+func (e handleErrors) ErrorOrNil() error {
+	if e == nil || len(e) == 0 {
+		return nil
+	}
+	return e
+}
+
 // HandleMetric transforms metric template instances into New Relic metrics and
 // sends them to New Relic.
 func (h *Handler) HandleMetric(_ context.Context, msgs []*metric.InstanceMsg) error {
+	var errs handleErrors
 	for _, i := range msgs {
 		v, err := convert.ValueToFloat64(i.Value)
 		if err != nil {
-			h.logger.Warningf("Failed to parse metric value '%v' for '%s'", i.Value, i.Name)
+			errs = append(errs, &handleError{i.Name, err})
 			continue
 		}
 		attrs := convert.DimensionsToAttributes(i.Dimensions)
 
 		minfo, found := h.metrics[i.Name]
 		if !found {
-			h.logger.Warningf("no metric info found for %s, skipping metric", i.Name)
+			errs = append(errs, &handleError{i.Name, errors.New("no metric info found")})
 			continue
 		}
 
 		switch minfo.mtype {
 		case config.GAUGE:
-			h.agg.NewGauge(minfo.name, attrs).Value(v)
+			h.agg.Gauge(minfo.name, attrs).Value(v)
 		case config.COUNT:
 			if v < 0.0 {
-				h.logger.Warningf("invalid count value for %s (skipping): must be a positive value for a count (got %f)", i.Name, v)
+				errs = append(errs, &handleError{i.Name, fmt.Errorf("negative count value: %f", v)})
 				continue
 			}
-			h.agg.NewCount(minfo.name, attrs).Increase(v)
+			h.agg.Count(minfo.name, attrs).Increase(v)
 		case config.SUMMARY:
-			h.agg.NewSummary(minfo.name, attrs).Record(v)
+			h.agg.Summary(minfo.name, attrs).Record(v)
 		default:
-			h.logger.Warningf("unknown metric type for %s: %v", i.Name, minfo.mtype)
+			errs = append(errs, &handleError{i.Name, fmt.Errorf("unknown metric type: %v", minfo.mtype)})
 		}
 	}
 
-	return nil
+	return errs.ErrorOrNil()
 }

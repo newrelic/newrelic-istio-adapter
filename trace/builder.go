@@ -16,8 +16,8 @@
 package trace
 
 import (
-	"github.com/newrelic/newrelic-istio-adapter/internal/nrsdk/telemetry"
 	"github.com/newrelic/newrelic-istio-adapter/config"
+	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	"istio.io/istio/mixer/pkg/adapter"
 )
 
