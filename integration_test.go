@@ -32,8 +32,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/newrelic/newrelic-istio-adapter/internal/nrsdk/instrumentation"
-	"github.com/newrelic/newrelic-istio-adapter/internal/nrsdk/telemetry"
+	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	integration "istio.io/istio/mixer/pkg/adapter/test"
 )
 
@@ -58,11 +57,11 @@ func TestReport(t *testing.T) {
 		"foodHandlerPermit": "revoked",
 	}
 	mockt := newMockTransport()
-	agg, harvester := mockHarvester(mockt, commonAttrs)
+	harvester := mockHarvester(mockt, commonAttrs)
 
 	scenario := integration.Scenario{
 		Setup: func() (ctx interface{}, err error) {
-			s, err := NewServer(":0", agg, harvester)
+			s, err := NewServer(":0", harvester)
 			if err != nil {
 				return nil, err
 			}
@@ -321,15 +320,13 @@ func newMockTransport() *MockTransport {
 	}
 }
 
-func mockHarvester(mt *MockTransport, common map[string]interface{}) (*instrumentation.MetricAggregator, *telemetry.Harvester) {
-	agg := instrumentation.NewMetricAggregator()
-	return agg, telemetry.NewHarvester(
+func mockHarvester(mt *MockTransport, common map[string]interface{}) *telemetry.Harvester {
+	return telemetry.NewHarvester(
 		telemetry.ConfigAPIKey("8675309"),
 		telemetry.ConfigCommonAttributes(common),
 		telemetry.ConfigHarvestPeriod(time.Duration(5*time.Second)),
 		telemetry.ConfigBasicErrorLogger(os.Stderr),
 		telemetry.ConfigBasicDebugLogger(os.Stderr),
-		agg.BeforeHarvest,
 		func(cfg *telemetry.Config) {
 			cfg.MetricsURLOverride = "localhost"
 			cfg.SpansURLOverride = "localhost"

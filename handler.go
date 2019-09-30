@@ -30,12 +30,12 @@ type Handler struct {
 	t *trace.Handler
 }
 
-// HandleMetric implements the HandleMetricServiceServer interface.
+// HandleMetric reports metric instances to New Relic.
 func (h *Handler) HandleMetric(ctx context.Context, values []*metric.InstanceMsg) error {
 	return h.m.HandleMetric(ctx, values)
 }
 
-// HandleTraceSpan implements the HandleTraceSpanServiceServer interface.
+// HandleTraceSpan reports tracespan instances to New Relic.
 func (h *Handler) HandleTraceSpan(ctx context.Context, values []*tracespan.InstanceMsg) error {
 	return h.t.HandleTraceSpan(ctx, values)
 }
