@@ -56,8 +56,24 @@ func TestReport(t *testing.T) {
 		"cluster.name":      "hotdog-stand",
 		"foodHandlerPermit": "revoked",
 	}
-	mockt := newMockTransport()
-	harvester := mockHarvester(mockt, commonAttrs)
+	mockt := &MockTransport{
+		requests: make([][]byte, 0),
+	}
+	harvester, err := telemetry.NewHarvester(
+		telemetry.ConfigAPIKey("8675309"),
+		telemetry.ConfigCommonAttributes(commonAttrs),
+		telemetry.ConfigHarvestPeriod(time.Duration(5*time.Second)),
+		telemetry.ConfigBasicErrorLogger(os.Stderr),
+		telemetry.ConfigBasicDebugLogger(os.Stderr),
+		func(cfg *telemetry.Config) {
+			cfg.MetricsURLOverride = "localhost"
+			cfg.SpansURLOverride = "localhost"
+			cfg.Client.Transport = mockt
+		},
+	)
+	if err != nil {
+		t.Fatalf("failed to create harvester: %v", err)
+	}
 
 	scenario := integration.Scenario{
 		Setup: func() (ctx interface{}, err error) {
@@ -312,27 +328,6 @@ func (c *MockTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 		StatusCode: 200,
 		Body:       ioutil.NopCloser(&bytes.Buffer{}),
 	}, nil
-}
-
-func newMockTransport() *MockTransport {
-	return &MockTransport{
-		requests: make([][]byte, 0),
-	}
-}
-
-func mockHarvester(mt *MockTransport, common map[string]interface{}) *telemetry.Harvester {
-	return telemetry.NewHarvester(
-		telemetry.ConfigAPIKey("8675309"),
-		telemetry.ConfigCommonAttributes(common),
-		telemetry.ConfigHarvestPeriod(time.Duration(5*time.Second)),
-		telemetry.ConfigBasicErrorLogger(os.Stderr),
-		telemetry.ConfigBasicDebugLogger(os.Stderr),
-		func(cfg *telemetry.Config) {
-			cfg.MetricsURLOverride = "localhost"
-			cfg.SpansURLOverride = "localhost"
-			cfg.Client.Transport = mt
-		},
-	)
 }
 
 type CommonAttributes struct {
