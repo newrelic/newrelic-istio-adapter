@@ -25,8 +25,7 @@ import (
 	"syscall"
 
 	newrelic "github.com/newrelic/newrelic-istio-adapter"
-	"github.com/newrelic/newrelic-istio-adapter/internal/nrsdk/instrumentation"
-	"github.com/newrelic/newrelic-istio-adapter/internal/nrsdk/telemetry"
+	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -91,23 +90,24 @@ func main() {
 		debugLogFile = os.Stderr
 	}
 
-	agg := instrumentation.NewMetricAggregator()
-	h := telemetry.NewHarvester(
+	h, err := telemetry.NewHarvester(
 		telemetry.ConfigAPIKey(*apiKeyPtr),
 		telemetry.ConfigCommonAttributes(commonAttrs),
 		telemetry.ConfigBasicErrorLogger(os.Stderr),
 		telemetry.ConfigHarvestPeriod(*harvestPeriodPtr),
 		telemetry.ConfigBasicDebugLogger(debugLogFile),
-		agg.BeforeHarvest,
 		func(cfg *telemetry.Config) {
 			cfg.MetricsURLOverride = *metricsHostPtr
 			cfg.SpansURLOverride = *spansHostPtr
 		},
 	)
+	if err != nil {
+		fmt.Printf("Failed to create harvester: %v\n", err)
+		os.Exit(-1)
+	}
 
 	address := fmt.Sprintf(":%d", *portPtr)
 
-	var err error
 	var s *newrelic.Server
 	if *mtlsCertPtr != "" && *mtlsKeyPtr != "" {
 		so, err := getServerTLSOption(*mtlsCertPtr, *mtlsKeyPtr, *mtlsCAPtr)
@@ -115,9 +115,9 @@ func main() {
 			fmt.Printf("Unable to configure gRPC server TLS: %v\n", err)
 			os.Exit(-1)
 		}
-		s, err = newrelic.NewServer(address, agg, h, so)
+		s, err = newrelic.NewServer(address, h, so)
 	} else {
-		s, err = newrelic.NewServer(address, agg, h)
+		s, err = newrelic.NewServer(address, h)
 	}
 	if err != nil {
 		fmt.Printf("Unable to start server: %v\n", err)

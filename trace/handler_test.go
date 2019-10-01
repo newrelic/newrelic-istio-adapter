@@ -20,7 +20,7 @@ import (
 	"time"
 
 	"github.com/gogo/protobuf/types"
-	"github.com/newrelic/newrelic-istio-adapter/internal/nrsdk/telemetry"
+	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	policy "istio.io/api/policy/v1beta1"
 	"istio.io/istio/mixer/template/tracespan"
 )
