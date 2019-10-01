@@ -1,0 +1,47 @@
+sudo: required
+
+services:
+  - docker
+
+language: go
+go:
+  - "1.13.x"
+go_import_path: github.com/newrelic/newrelic-istio-adapter
+
+cache:
+  npm: true
+  directories:
+    - $HOME/.cache/go-build
+    - $HOME/gopath/pkg/mod
+
+env:
+  global:
+    - IMAGE_NAME=${DOCKER_REGISTRY_ID:-$DOCKER_USER}/newrelic-istio-adapter
+
+install:
+  - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then npm install -g snyk; fi
+
+script:
+  - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then if [ "$TRAVIS_BRANCH" = "master" ]; then cmd=monitor; else cmd=test; fi; snyk "$cmd"; fi
+  - make lint
+  - make test TAGS=integration
+  # Ensure protobuf generation is current.
+  - make generate && git diff --exit-code ./config
+  - make build
+  - docker build --tag "$IMAGE_NAME" .
+  - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then if [ "$TRAVIS_BRANCH" = "master" ]; then cmd=monitor; else cmd=test; fi; snyk "$cmd" --docker "$IMAGE_NAME" --file=Dockerfile; fi
+
+before_deploy:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
+
+deploy:
+  - provider: script
+    script: docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${TRAVIS_TAG}" && docker push "${IMAGE_NAME}:${TRAVIS_TAG}"
+    on:
+      type: push
+      tags: true
+  - provider: script
+    script: docker tag "$IMAGE_NAME" "${IMAGE_NAME}:master" && docker push "${IMAGE_NAME}:master"
+    on:
+      type: push
+      branch: master

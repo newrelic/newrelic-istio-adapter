@@ -29,12 +29,7 @@ set -e
 
 outdir=$ROOTDIR
 file=$ROOTDIR
-## To run `go generate` locally, utilize the `bin/protoc.sh` script
-## this script runs a docker container, some CICD platforms may
-## object to Docker in Docker. 
-## Only one (1) protoc variable should be set. 
-# protoc="$ROOTDIR/bin/protoc.sh"
-protoc="/usr/bin/protoc"
+protoc="$ROOTDIR/bin/protoc.sh"
 
 optimport=$ROOTDIR
 template=$ROOTDIR
@@ -152,7 +147,7 @@ if [ "$opttemplate" = true ]; then
     die "template generation failure: $err";
   fi
 
-  go run "$GOPATH/src/istio.io/istio/mixer/tools/mixgen/main.go" api -t "$templateDS" --go_out "$templateHG" --proto_out "$templateHSP" "${TMPL_GEN_MAP[@]}"
+  "$GOPATH/bin/mixgen" api -t "$templateDS" --go_out "$templateHG" --proto_out "$templateHSP" "${TMPL_GEN_MAP[@]}"
 
   err=$($protoc "${IMPORTS[@]}" "$TMPL_PLUGIN" "$templateHSP")
   if [ -n "$err" ]; then
@@ -171,7 +166,7 @@ if [ "$opttemplate" = true ]; then
   fi
 
   templateYaml=${template/.proto/.yaml}
-  go run "$GOPATH/src/istio.io/istio/mixer/tools/mixgen/main.go" template -d "$templateSDS" -o "$templateYaml" -n "$(basename "$(dirname "${template}")")"
+  "$GOPATH/bin/mixgen" template -d "$templateSDS" -o "$templateYaml" -n "$(basename "$(dirname "${template}")")"
 
   rm "$templatePG"
 
@@ -196,7 +191,7 @@ if [ "$optadapter" = true ]; then
   fi
 
   IFS=" " read -r -a extraflags_array <<< "$extraflags"
-  go run "$GOPATH/src/istio.io/istio/mixer/tools/mixgen/main.go" adapter -c "$adapteCfdDS" -o "$(dirname "${file}")" "${extraflags_array[@]}"
+  "$GOPATH/bin/mixgen" adapter -c "$adapteCfdDS" -o "$(dirname "${file}")" "${extraflags_array[@]}"
 
   exit 0
 fi
