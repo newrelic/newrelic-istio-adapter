@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG GRPC_HEALTH_PROBE_VERSION=v0.2.0
-
 #############################################################################
 # STEP 1: build static binary
 #############################################################################
@@ -25,9 +23,7 @@ COPY . .
 ENV GOOS=linux
 ENV GOARCH=amd64
 ENV CGO_ENABLED=0
-# Run full test suite and build the static binary
-RUN make test TAGS=integration \
-    && make build GOBIN=/go/bin
+RUN make build
 
 #############################################################################
 # STEP 2: create a small image
