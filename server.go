@@ -25,11 +25,10 @@ import (
 	"net"
 	"sync"
 
-	"github.com/newrelic/newrelic-istio-adapter/internal/nrsdk/instrumentation"
-	"github.com/newrelic/newrelic-istio-adapter/internal/nrsdk/telemetry"
 	"github.com/newrelic/newrelic-istio-adapter/config"
 	nrmetric "github.com/newrelic/newrelic-istio-adapter/metric"
 	"github.com/newrelic/newrelic-istio-adapter/trace"
+	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
@@ -56,7 +55,6 @@ type Server struct {
 	handler *Handler
 
 	harvester *telemetry.Harvester
-	agg       *instrumentation.MetricAggregator
 }
 
 // Compile time assertion Server implement what it is expected to.
@@ -66,7 +64,7 @@ var (
 )
 
 // NewServer creates a new Mixer metric handling server.
-func NewServer(addr string, agg *instrumentation.MetricAggregator, h *telemetry.Harvester, grpcOpt ...grpc.ServerOption) (*Server, error) {
+func NewServer(addr string, h *telemetry.Harvester, grpcOpt ...grpc.ServerOption) (*Server, error) {
 	gp := pool.NewGoroutinePool(5, false)
 	s := &Server{
 		env:          rtHandler.NewEnv(0, "newrelic", gp),
@@ -74,7 +72,6 @@ func NewServer(addr string, agg *instrumentation.MetricAggregator, h *telemetry.
 		healthServer: health.NewServer(),
 		server:       grpc.NewServer(grpcOpt...),
 		harvester:    h,
-		agg:          agg,
 	}
 
 	var err error
@@ -119,7 +116,7 @@ func (s *Server) getHandler(rawcfg []byte) (*Handler, error) {
 		return s.handler, nil
 	}
 
-	mh, err := nrmetric.BuildHandler(cfg, s.agg, s.env)
+	mh, err := nrmetric.BuildHandler(cfg, s.harvester, s.env)
 	if err != nil {
 		return nil, err
 	}

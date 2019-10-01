@@ -32,8 +32,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/newrelic/newrelic-istio-adapter/internal/nrsdk/instrumentation"
-	"github.com/newrelic/newrelic-istio-adapter/internal/nrsdk/telemetry"
+	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	integration "istio.io/istio/mixer/pkg/adapter/test"
 )
 
@@ -57,12 +56,28 @@ func TestReport(t *testing.T) {
 		"cluster.name":      "hotdog-stand",
 		"foodHandlerPermit": "revoked",
 	}
-	mockt := newMockTransport()
-	agg, harvester := mockHarvester(mockt, commonAttrs)
+	mockt := &MockTransport{
+		requests: make([][]byte, 0),
+	}
+	harvester, err := telemetry.NewHarvester(
+		telemetry.ConfigAPIKey("8675309"),
+		telemetry.ConfigCommonAttributes(commonAttrs),
+		telemetry.ConfigHarvestPeriod(time.Duration(5*time.Second)),
+		telemetry.ConfigBasicErrorLogger(os.Stderr),
+		telemetry.ConfigBasicDebugLogger(os.Stderr),
+		func(cfg *telemetry.Config) {
+			cfg.MetricsURLOverride = "localhost"
+			cfg.SpansURLOverride = "localhost"
+			cfg.Client.Transport = mockt
+		},
+	)
+	if err != nil {
+		t.Fatalf("failed to create harvester: %v", err)
+	}
 
 	scenario := integration.Scenario{
 		Setup: func() (ctx interface{}, err error) {
-			s, err := NewServer(":0", agg, harvester)
+			s, err := NewServer(":0", harvester)
 			if err != nil {
 				return nil, err
 			}
@@ -313,29 +328,6 @@ func (c *MockTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 		StatusCode: 200,
 		Body:       ioutil.NopCloser(&bytes.Buffer{}),
 	}, nil
-}
-
-func newMockTransport() *MockTransport {
-	return &MockTransport{
-		requests: make([][]byte, 0),
-	}
-}
-
-func mockHarvester(mt *MockTransport, common map[string]interface{}) (*instrumentation.MetricAggregator, *telemetry.Harvester) {
-	agg := instrumentation.NewMetricAggregator()
-	return agg, telemetry.NewHarvester(
-		telemetry.ConfigAPIKey("8675309"),
-		telemetry.ConfigCommonAttributes(common),
-		telemetry.ConfigHarvestPeriod(time.Duration(5*time.Second)),
-		telemetry.ConfigBasicErrorLogger(os.Stderr),
-		telemetry.ConfigBasicDebugLogger(os.Stderr),
-		agg.BeforeHarvest,
-		func(cfg *telemetry.Config) {
-			cfg.MetricsURLOverride = "localhost"
-			cfg.SpansURLOverride = "localhost"
-			cfg.Client.Transport = mt
-		},
-	)
 }
 
 type CommonAttributes struct {

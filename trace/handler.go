@@ -21,7 +21,7 @@ import (
 
 	"github.com/gogo/protobuf/types"
 	"github.com/newrelic/newrelic-istio-adapter/convert"
-	"github.com/newrelic/newrelic-istio-adapter/internal/nrsdk/telemetry"
+	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	"istio.io/istio/mixer/pkg/adapter"
 	"istio.io/istio/mixer/template/tracespan"
 )
