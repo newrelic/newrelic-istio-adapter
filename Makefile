@@ -28,19 +28,30 @@ GO = GOPATH=$(GOPATH) GOBIN=$(GOBIN) go
 LDFLAGS = -ldflags="-extldflags '-static' -X main.Version=$(VERSION)"
 
 
-all: generate test build
+all: lint test build
 
-generate:
+generate/deps:
+# Install the Istio Mixer generation utility.
+	@$(GO) install istio.io/istio/mixer/tools/mixgen
 # The generate script requires local copies of dependencies.
 	@$(GO) mod vendor
+
+generate: generate/deps
 	@$(GO) generate ./...
 
-TAGS ?= ""
+lint/deps:
+	@$(GO) get -u golang.org/x/lint/golint
+
+lint: lint/deps
+	@$(GO) vet -unreachable=false ./...
+	@golint -set_exit_status ./...
+
+TAGS ?= "integration"
 TEST_TAGS := --tags=$(TAGS)
 test:
-	@$(GO) test -v $(TEST_TAGS) ./...
+	@$(GO) test -v -race $(TEST_TAGS) ./...
 
 build:
 	@$(GO) build $(LDFLAGS) -o $(GOBIN)/$(BINARY) cmd/main.go
 
-.PHONY: generate test build
+.PHONY: generate/deps generate lint/deps lint test build
