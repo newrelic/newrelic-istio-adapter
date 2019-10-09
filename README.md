@@ -1,3 +1,6 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/newrelic/newrelic-istio-adapter)](https://goreportcard.com/report/github.com/newrelic/newrelic-istio-adapter)
+[![Build Status](https://travis-ci.com/newrelic/newrelic-istio-adapter.svg?branch=master)](https://travis-ci.com/newrelic/newrelic-istio-adapter)
+
 # New Relic Istio Adapter
 
 *An Istio Mixer adapter to send telemetry data to New Relic.*
