@@ -25,6 +25,7 @@ import (
 	"syscall"
 
 	newrelic "github.com/newrelic/newrelic-istio-adapter"
+	"github.com/newrelic/newrelic-istio-adapter/log"
 	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -38,7 +39,7 @@ var Version = "undefined"
 var (
 	portPtr          = kingpin.Flag("port", "port gRPC server listens on").Default("55912").OverrideDefaultFromEnvar("NEW_RELIC_PORT").Short('p').Int32()
 	clusterNamePtr   = kingpin.Flag("cluster-name", "Name of cluster where metrics come from").OverrideDefaultFromEnvar("NEW_RELIC_CLUSTER_NAME").String()
-	debugPtr         = kingpin.Flag("debug", "enable debug logging").OverrideDefaultFromEnvar("NEW_RELIC_DEBUG").Short('d').Bool()
+	logLevelPtr      = kingpin.Flag("log-level", "set logging level").OverrideDefaultFromEnvar("NEW_RELIC_LOG_LEVEL").Default("error").Enum(log.Levels()...)
 	harvestPeriodPtr = kingpin.Flag("harvest-period", "rate data is reported to New Relic").Default("5s").OverrideDefaultFromEnvar("NEW_RELIC_HARVEST_PERIOD").Duration()
 	metricsHostPtr   = kingpin.Flag("metrics-host", "Endpoint to send metrics (used for debugging)").OverrideDefaultFromEnvar("NEW_RELIC_METRICS_HOST").String()
 	spansHostPtr     = kingpin.Flag("spans-host", "Endpoint to send spans (used for debugging)").OverrideDefaultFromEnvar("NEW_RELIC_SPANS_HOST").String()
@@ -78,6 +79,12 @@ func main() {
 	kingpin.Version(Version)
 	kingpin.Parse()
 
+	l, err := log.ParseLevel(*logLevelPtr)
+	if err != nil {
+		log.Fatalf("failed to configure logging: %v\n", err)
+	}
+	log.SetOutputLevel(l)
+
 	var commonAttrs map[string]interface{}
 	if clusterNamePtr != nil && *clusterNamePtr != "" {
 		commonAttrs = map[string]interface{}{
@@ -85,25 +92,18 @@ func main() {
 		}
 	}
 
-	debugLogFile := ioutil.Discard
-	if *debugPtr {
-		debugLogFile = os.Stderr
-	}
-
 	h, err := telemetry.NewHarvester(
 		telemetry.ConfigAPIKey(*apiKeyPtr),
 		telemetry.ConfigCommonAttributes(commonAttrs),
-		telemetry.ConfigBasicErrorLogger(os.Stderr),
 		telemetry.ConfigHarvestPeriod(*harvestPeriodPtr),
-		telemetry.ConfigBasicDebugLogger(debugLogFile),
+		log.HarvesterConfigFunc(),
 		func(cfg *telemetry.Config) {
 			cfg.MetricsURLOverride = *metricsHostPtr
 			cfg.SpansURLOverride = *spansHostPtr
 		},
 	)
 	if err != nil {
-		fmt.Printf("Failed to create harvester: %v\n", err)
-		os.Exit(-1)
+		log.Fatalf("failed to create harvester: %v\n", err)
 	}
 
 	address := fmt.Sprintf(":%d", *portPtr)
@@ -112,16 +112,14 @@ func main() {
 	if *mtlsCertPtr != "" && *mtlsKeyPtr != "" {
 		so, err := getServerTLSOption(*mtlsCertPtr, *mtlsKeyPtr, *mtlsCAPtr)
 		if err != nil {
-			fmt.Printf("Unable to configure gRPC server TLS: %v\n", err)
-			os.Exit(-1)
+			log.Fatalf("failed to configure gRPC server TLS: %v\n", err)
 		}
 		s, err = newrelic.NewServer(address, h, so)
 	} else {
 		s, err = newrelic.NewServer(address, h)
 	}
 	if err != nil {
-		fmt.Printf("Unable to start server: %v\n", err)
-		os.Exit(-1)
+		log.Fatalf("failed to start server: %v\n", err)
 	}
 
 	// Termination handler.
@@ -130,16 +128,15 @@ func main() {
 	go func() {
 		select {
 		case <-term:
-			fmt.Println("Received SIGTERM, exiting gracefully...")
+			log.Infof("received SIGTERM, exiting gracefully...")
 			if err := s.Close(); err != nil {
-				fmt.Printf("%v\n", err)
+				log.Errorf("%v\n", err)
 			}
 		}
 	}()
 
 	s.Run()
 	if err := s.Wait(); err != nil {
-		fmt.Printf("%v\n", err)
-		os.Exit(1)
+		log.Fatalf("%v\n", err)
 	}
 }

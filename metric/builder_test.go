@@ -18,8 +18,6 @@ import (
 	"strings"
 	"testing"
 
-	adapterTest "istio.io/istio/mixer/pkg/adapter/test"
-
 	"github.com/newrelic/newrelic-istio-adapter/config"
 )
 
@@ -97,8 +95,7 @@ func TestBuildHandler(t *testing.T) {
 			Metrics:   map[string]*config.Params_MetricInfo{mixerMetricName: pmi},
 		}
 
-		env := adapterTest.NewEnv(t)
-		h, err := BuildHandler(params, nil, env)
+		h, err := BuildHandler(params, nil)
 
 		// Invalid name, but we saw expected error, so it's all good.
 		if !tc.isValid && err != nil {
