@@ -21,6 +21,7 @@ import (
 	"unicode/utf16"
 
 	"github.com/newrelic/newrelic-istio-adapter/config"
+	"github.com/newrelic/newrelic-istio-adapter/log"
 	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	"istio.io/istio/mixer/pkg/adapter"
 )
@@ -37,15 +38,14 @@ type metricConfig struct {
 }
 
 // BuildHandler returns a metric Handler with valid configuration.
-func BuildHandler(params *config.Params, h *telemetry.Harvester, env adapter.Env) (*Handler, error) {
+func BuildHandler(params *config.Params, h *telemetry.Harvester) (*Handler, error) {
 	cfg, err := buildConfig(params)
 	if err != nil {
 		return nil, err
 	}
-	env.Logger().Infof("Built metrics: %#v", cfg.metrics)
+	log.Infof("built metrics: %#v", cfg.metrics)
 
 	handler := &Handler{
-		logger:  env.Logger(),
 		agg:     h.MetricAggregator(),
 		metrics: cfg.metrics,
 	}

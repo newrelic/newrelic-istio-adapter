@@ -22,7 +22,6 @@ import (
 	"github.com/gogo/protobuf/types"
 	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	policy "istio.io/api/policy/v1beta1"
-	adapterTest "istio.io/istio/mixer/pkg/adapter/test"
 	"istio.io/istio/mixer/template/metric"
 
 	"github.com/newrelic/newrelic-istio-adapter/config"
@@ -127,8 +126,7 @@ func TestHandleMetric(t *testing.T) {
 	}
 
 	metricHandler := &Handler{
-		logger: adapterTest.NewEnv(t).Logger(),
-		agg:    harvester.MetricAggregator(),
+		agg: harvester.MetricAggregator(),
 		metrics: map[string]info{
 			"gaugeExample.instance.istio-system": info{
 				name:  "gaugeExample",
