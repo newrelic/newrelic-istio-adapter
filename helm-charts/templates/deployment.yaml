@@ -53,6 +53,10 @@ spec:
           args:
             - --cluster-name
             - {{ .Values.clusterName }}
+          {{- with .Values.logLevel }}
+            - --log-level
+            - {{ . }}
+          {{- end }}
           {{- with .Values.metricsHost }}
             - --metrics-host
             - {{ . }}

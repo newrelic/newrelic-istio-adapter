@@ -126,7 +126,17 @@ As an example, this Insights query will display a timeseries graph of total Isti
 From Metric SELECT sum(istio.request.total) TIMESERIES
 ```
 
-The logs of Mixer and the `newrelic-istio-adapter` in Kubernetes should show activity or errors.
+By default, Mixer is configured to output `info` level logs.
+This should include logs about telemetry events being sent to the `newrelic-istio-adapter`.
+Be sure to verify this is happening.
+
+```shell
+kubectl -n istio-system logs -l app=istio-mixer
+```
+
+Additionally, the `newrelic-istio-adapter` logs should be empty.
+By default the `newrelic-istio-adapter` only logs errors.
+Be sure to also verify this.
 
 ```shell
 kubectl -n newrelic-istio-adapter logs -l app.kubernetes.io/name=newrelic-istio-adapter

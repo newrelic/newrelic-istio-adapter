@@ -59,7 +59,7 @@ Another option is to export an environment variable (`NEW_RELIC_API_KEY`) prior 
 ```shell
 go run cmd/main.go \
   --cluster-name "Local Testing" \
-  --debug \
+  --log-level debug \
   "$NEW_RELIC_API_KEY"
 ```
 
@@ -109,7 +109,8 @@ $MIXC report \
   --bytes_attributes source.ip=c0:0:0:2
 ```
 
-The `newrelic-istio-adapter` should output activity to `STDOUT` signifying that metrics have been captured and sent to New Relic.
+If you set the `--log-level` option to `debug` when running the `newrelic-istio-adapter` you should start to see logs describing how the `newrelic-istio-adapter` is receiving metrics and also sending those metrics to New Relic.
+The default logging level (`error`) will not display this information in the logs, but should log any errors if the `newrelic-istio-adapter` is not operating correctly.
 
 ## Release Process
 

@@ -18,13 +18,11 @@ package trace
 import (
 	"github.com/newrelic/newrelic-istio-adapter/config"
 	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
-	"istio.io/istio/mixer/pkg/adapter"
 )
 
 // BuildHandler returns a trace Handler with valid configuration.
-func BuildHandler(_ *config.Params, h *telemetry.Harvester, env adapter.Env) (*Handler, error) {
+func BuildHandler(_ *config.Params, h *telemetry.Harvester) (*Handler, error) {
 	traceHandler := &Handler{
-		logger:    env.Logger(),
 		harvester: h,
 	}
 	return traceHandler, nil
