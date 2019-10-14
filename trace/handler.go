@@ -21,6 +21,7 @@ import (
 
 	"github.com/gogo/protobuf/types"
 	"github.com/newrelic/newrelic-istio-adapter/convert"
+	"github.com/newrelic/newrelic-istio-adapter/log"
 	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	"istio.io/istio/mixer/pkg/adapter"
 	"istio.io/istio/mixer/template/tracespan"
@@ -28,7 +29,6 @@ import (
 
 // Handler represents a processor that can handle tracespans from Istio and transmit them to New Relic.
 type Handler struct {
-	logger    adapter.Logger
 	harvester *telemetry.Harvester
 }
 
@@ -38,7 +38,7 @@ func (h *Handler) HandleTraceSpan(_ context.Context, msgs []*tracespan.InstanceM
 	for _, i := range msgs {
 		span, err := convertTraceSpan(i)
 		if err != nil {
-			h.logger.Warningf("Error converting tracespan: %v", err)
+			log.Warnf("error converting tracespan: %v", err)
 			continue
 		}
 

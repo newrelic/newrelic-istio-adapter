@@ -23,13 +23,11 @@ import (
 	"github.com/newrelic/newrelic-istio-adapter/config"
 	"github.com/newrelic/newrelic-istio-adapter/convert"
 	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
-	"istio.io/istio/mixer/pkg/adapter"
 	"istio.io/istio/mixer/template/metric"
 )
 
 // Handler represents a processor that can handle metrics from Istio and transmit them to New Relic.
 type Handler struct {
-	logger  adapter.Logger
 	agg     *telemetry.MetricAggregator
 	metrics map[string]info
 }

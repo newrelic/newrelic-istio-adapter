@@ -30,6 +30,10 @@ istioNamespace: istio-system
 # Corresponds to the cluster.name attribute of metrics.
 clusterName: istio-cluster
 
+# Logging level for the adapter.
+# Valid logging levels are: debug, info, warn, error, fatal, or none
+#logLevel: error
+
 # Override the New Relic Metrics API endpoint (used for debugging).
 #metricsHost: ""
 

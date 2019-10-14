@@ -26,6 +26,7 @@ import (
 	"sync"
 
 	"github.com/newrelic/newrelic-istio-adapter/config"
+	"github.com/newrelic/newrelic-istio-adapter/log"
 	nrmetric "github.com/newrelic/newrelic-istio-adapter/metric"
 	"github.com/newrelic/newrelic-istio-adapter/trace"
 	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
@@ -33,12 +34,8 @@ import (
 	"google.golang.org/grpc/health"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	adptModel "istio.io/api/mixer/adapter/model/v1beta1"
-	"istio.io/istio/mixer/pkg/adapter"
-	rtHandler "istio.io/istio/mixer/pkg/runtime/handler"
 	"istio.io/istio/mixer/template/metric"
 	"istio.io/istio/mixer/template/tracespan"
-	"istio.io/pkg/log"
-	"istio.io/pkg/pool"
 )
 
 // Server listens for Mixer metrics and sends them to New Relic.
@@ -49,7 +46,6 @@ type Server struct {
 	shutdown     chan error
 
 	rawcfg      []byte
-	env         adapter.Env
 	builderLock sync.RWMutex
 
 	handler *Handler
@@ -65,9 +61,7 @@ var (
 
 // NewServer creates a new Mixer metric handling server.
 func NewServer(addr string, h *telemetry.Harvester, grpcOpt ...grpc.ServerOption) (*Server, error) {
-	gp := pool.NewGoroutinePool(5, false)
 	s := &Server{
-		env:          rtHandler.NewEnv(0, "newrelic", gp),
 		rawcfg:       []byte{0xff, 0xff},
 		healthServer: health.NewServer(),
 		server:       grpc.NewServer(grpcOpt...),
@@ -116,12 +110,12 @@ func (s *Server) getHandler(rawcfg []byte) (*Handler, error) {
 		return s.handler, nil
 	}
 
-	mh, err := nrmetric.BuildHandler(cfg, s.harvester, s.env)
+	mh, err := nrmetric.BuildHandler(cfg, s.harvester)
 	if err != nil {
 		return nil, err
 	}
 
-	th, err := trace.BuildHandler(cfg, s.harvester, s.env)
+	th, err := trace.BuildHandler(cfg, s.harvester)
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +180,7 @@ func (s *Server) HandleTraceSpan(ctx context.Context, r *tracespan.HandleTraceSp
 	}
 
 	if err = h.HandleTraceSpan(ctx, r.Instances); err != nil {
-		return nil, s.env.Logger().Errorf("could not process: %v", err)
+		return nil, fmt.Errorf("failed to handle tracespan: %v", err)
 	}
 
 	return &adptModel.ReportResult{}, nil
@@ -200,7 +194,7 @@ func (s *Server) HandleMetric(ctx context.Context, r *metric.HandleMetricRequest
 	}
 
 	if err = h.HandleMetric(ctx, r.Instances); err != nil {
-		return nil, s.env.Logger().Errorf("could not process: %v", err)
+		return nil, fmt.Errorf("failed to handle metric: %v", err)
 	}
 
 	return &adptModel.ReportResult{}, nil

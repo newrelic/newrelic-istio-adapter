@@ -8,6 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 *   Travis CI configuration to validate and build this project.
+*   A `--log-level` command flag to specify the user desired minimum logging level.
+*   A `log` package to unify the adapter logging function.
+
+### Changed
+
+*   Switched to using the upstream [New Relic Go telemetry SDK](https://github.com/newrelic/newrelic-telemetry-sdk-go) instead of the internal `nrsdk` package.
+*   Unified the adapter logging. Logs should now have a unified format and be configurable globaly to set the logging level.
+*   The `metric.BuildHandler` and `trace.BuildHandler` functions no longer take an Istio adapter `Logger` interface as an argument.
+*   The helm-charts now have a `logLevel` value to specify the adapter logging level during the deploy.
+
+### Removed
+
+*   The `--debug` command flag is now replaced by setting the `--log-level` flag to `debug`.
 
 ## 1.0.0
 
