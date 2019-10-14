@@ -22,7 +22,7 @@ const (
 	// WarnLevel signifies all messages with warn level and above should be logged.
 	WarnLevel
 
-	// ErrorLevel signifies all messages with fatal level and above should be logged.
+	// ErrorLevel signifies all messages with error level and above should be logged.
 	ErrorLevel
 
 	// FatalLevel signifies only fatal level messages should be logged.
