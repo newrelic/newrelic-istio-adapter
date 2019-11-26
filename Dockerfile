@@ -42,7 +42,7 @@ RUN wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health
 # Create group and user, root privilege not needed
 RUN addgroup -g 2000 newrelic && \
     adduser -S -D -H -u 2000 -G newrelic newrelic
-USER newrelic
+USER 2000
 
 EXPOSE 55912
 ENTRYPOINT ["/go/bin/newrelic-istio-adapter"]
