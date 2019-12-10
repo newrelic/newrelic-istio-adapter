@@ -69,7 +69,7 @@ image:
   # Repository for container image.
   repository: newrelic/newrelic-istio-adapter
   # Image tag.
-  tag: "2.0.0"
+  tag: "2.0.1"
   # Image pull policy.
   pullPolicy: IfNotPresent
 
