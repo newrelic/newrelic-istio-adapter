@@ -9,6 +9,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 *   Added GID and UID 2000 to Dockerfile. The `newrelic-istio-adapter` container now runs as non-root user. 
 
+### Update
+
+*  Helm chart tracks a release tag instead of `latest`. This prevents any breaking change from the master branch from breaking installs of the adapter.
+*  Release version bump scripts keep the Docker image tag to install of the adapter to be current.
+
 ## 2.0.0
 
 ### Added

@@ -23,6 +23,7 @@ readonly BIN_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
 readonly VERSION_FILE="${BIN_DIR}/../VERSION"
 readonly CHANGELOG_FILE="${BIN_DIR}/../CHANGELOG.md"
 readonly HELM_CHART_MANIFEST="${BIN_DIR}/../helm-charts/Chart.yaml"
+readonly HELM_CHART_VALUES="${BIN_DIR}/../helm-charts/values.yaml"
 
 # Matches the expected semver spec: https://semver.org/
 readonly SEMVER_RE="^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(\\-[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$"
@@ -77,6 +78,10 @@ main() {
     # Update app version in helm chart
     sed -i.bkup -e "/^appVersion.*/s/.*/appVersion: \"$version\"/" "$HELM_CHART_MANIFEST" \
         && rm "${HELM_CHART_MANIFEST}.bkup"
+
+    # Update the Docker image tag installed by Helm.
+    sed -i.bkup -e "/^  tag: .*/s/.*/  tag: \"$version\"/" "$HELM_CHART_VALUES" \
+        && rm "${HELM_CHART_VALUES}.bkup"
 
     # Update the project version file.
     echo "$version" > "$VERSION_FILE"
