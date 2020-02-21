@@ -681,6 +681,6 @@ telemetry:
     ## The following can be uncommented if spans for inter-service communication
     ## should be sent to New Relic.
     #newrelic-tracing:
-    #  match: (context.protocol == "http" || context.protocol == "grpc") && destination.workload.name != "istio-telemetry" && destination.workload.name != "istio-pilot" && ((request.headers["x-b3-sampled"] | "0") == "1")
+    #  match: (context.protocol == "http" || context.protocol == "grpc") && destination.workload.name != "istio-telemetry" && destination.workload.name != "istio-pilot" && ((request.headers["x-b3-sampled"] | "") == "1")
     #  instances:
     #    - newrelic-span
