@@ -59,9 +59,8 @@ Once you have ensured all of these things, generate Kubernetes manifests with He
 
 ```shell
 cd helm-charts
-helm template . \
+helm template newrelic-istio-adapter . \
     -f values.yaml \
-    --name newrelic-istio-adapter \
     --namespace newrelic-istio-adapter \
     --set authentication.apiKey=<your_new_relic_api_key> \
     > newrelic-istio-adapter.yaml
