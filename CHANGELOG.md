@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 
 * The default tracing rule error for the incorrect parsed type in the rule expression is resolved. [#14](https://github.com/newrelic/newrelic-istio-adapter/issues/14)
+* The gRPC health check endpoint is now specified to be targeted at `localhost` instead of just the port. [#16](https://github.com/newrelic/newrelic-istio-adapter/issues/16)
 
 ## 2.0.1
 

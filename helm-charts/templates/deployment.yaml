@@ -68,11 +68,11 @@ spec:
             - $(NEW_RELIC_API_KEY)
           readinessProbe:
             exec:
-              command: ["/bin/grpc_health_probe", "-addr=:55912"]
+              command: ["/bin/grpc_health_probe", "-addr=localhost:55912"]
             initialDelaySeconds: 5
           livenessProbe:
             exec:
-              command: ["/bin/grpc_health_probe", "-addr=:55912"]
+              command: ["/bin/grpc_health_probe", "-addr=localhost:55912"]
             initialDelaySeconds: 10
           {{- with .Values.resources }}
           resources:
