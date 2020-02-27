@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Unreleased
 
+### Update
+
+* The helm-charts docs now include information on the `logLevel` variable.
+
 ### Added
 
 * Helm configuration to specify HTTP(S) proxies the adapter should use. [#16](https://github.com/newrelic/newrelic-istio-adapter/issues/16)
