@@ -94,6 +94,18 @@ tolerations: []
 # Kubernetes Deployment affinity definition.
 affinity: {}
 
+# HTTP(S) proxy settings.
+#proxy:
+#
+#  # HTTP proxy enpoint.
+#  http:
+#
+#  # HTTPS proxy enpoint.
+#  https:
+#
+#  # Routes to not proxy for (defaults to localhost if either http/https defined).
+#  none:
+
 # Istio telemetry configuration
 telemetry:
 
