@@ -45,6 +45,18 @@ spec:
             - name: grpc
               containerPort: 55912
           env:
+          {{- with .Values.proxy.https }}
+            - name: https_proxy
+              value: {{ . }}
+          {{- end }}
+          {{- with .Values.proxy.http }}
+            - name: http_proxy
+              value: {{ . }}
+          {{- end }}
+          {{- with .Values.proxy.none }}
+            - name: no_proxy
+              value: {{ . }}
+          {{- end }}
             - name: NEW_RELIC_API_KEY
               valueFrom:
                 secretKeyRef:
@@ -68,11 +80,11 @@ spec:
             - $(NEW_RELIC_API_KEY)
           readinessProbe:
             exec:
-              command: ["/bin/grpc_health_probe", "-addr=:55912"]
+              command: ["/bin/grpc_health_probe", "-addr=localhost:55912"]
             initialDelaySeconds: 5
           livenessProbe:
             exec:
-              command: ["/bin/grpc_health_probe", "-addr=:55912"]
+              command: ["/bin/grpc_health_probe", "-addr=localhost:55912"]
             initialDelaySeconds: 10
           {{- with .Values.resources }}
           resources:
