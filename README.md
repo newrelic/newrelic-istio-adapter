@@ -173,7 +173,19 @@ This sampling is important to keep in mind when enabling this functionality.
 Without sampling you can quickly exceed the [quota](#quotas) associated with your account for the number of spans-per-minute you are allowed.
 Additionally, the cost of sending spans to New Relic needs to be understood **before** you enable this.
 
-## New Relic Dashboard Template
+## Find and use your data
+
+Once the adapter is sending data you can start to explore your data in New Relic:
+
+- Metric data: see [Metric API docs](https://docs.newrelic.com/docs/data-ingest-apis/get-data-new-relic/metric-api/introduction-metric-api#find-data).
+- Trace/span data: see [Trace API docs](https://docs.newrelic.com/docs/understand-dependencies/distributed-tracing/trace-api/introduction-trace-api#view-data).
+
+For general querying information, see:
+
+- [Query New Relic data](https://docs.newrelic.com/docs/using-new-relic/data/understand-data/query-new-relic-data)
+- [Intro to NRQL](https://docs.newrelic.com/docs/query-data/nrql-new-relic-query-language/getting-started/nrql-syntax-clauses-functions)
+
+### New Relic Dashboard Template
 
 A [dashboard template](sample_newrelic_dashboard.json) is provided to chart some Istio metrics the default configuration produces. The template is designed to be imported with the [Insights Dashboard API](https://docs.newrelic.com/docs/insights/insights-api/manage-dashboards/insights-dashboard-api) and can be created straight from the [API Explorer](https://rpm.newrelic.com/api/explore/dashboards/create).
 
