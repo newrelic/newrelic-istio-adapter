@@ -19,9 +19,11 @@ env:
     - IMAGE_NAME=${DOCKER_REGISTRY_ID:-$DOCKER_USER}/newrelic-istio-adapter
 
 install:
-  - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then npm install -g snyk; snyk ignore --id=snyk:lic:golang:github.com:hashicorp:go-multierror:MPL-2.0 --reason='exemption given based on upstream inclusion'; snyk ignore --id=snyk:lic:golang:github.com:hashicorp:errwrap:MPL-2.0 --reason='exemption given based on upstream inclusion'; fi
+  - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then npm install -g snyk; fi
 
 script:
+  - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then snyk ignore --id=snyk:lic:golang:github.com:hashicorp:go-multierror:MPL-2.0 --reason='exemption given based on upstream inclusion'; fi
+  - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then snyk ignore --id=snyk:lic:golang:github.com:hashicorp:errwrap:MPL-2.0 --reason='exemption given based on upstream inclusion'; fi
   - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then if [ "$TRAVIS_BRANCH" = "master" ]; then cmd=monitor; else cmd=test; fi; snyk "$cmd"; fi
   - make lint
   - make test TAGS=integration
