@@ -94,7 +94,7 @@ tolerations: []
 # Kubernetes Deployment affinity definition.
 affinity: {}
 
-# HTTP(S) proxy settings.
+## HTTP(S) proxy settings.
 #proxy:
 #
 #  # HTTP proxy enpoint.

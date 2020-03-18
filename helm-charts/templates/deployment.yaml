@@ -45,17 +45,19 @@ spec:
             - name: grpc
               containerPort: 55912
           env:
-          {{- with .Values.proxy.https }}
+          {{- with .Values.proxy }}
+          {{- with .https }}
             - name: https_proxy
               value: {{ . }}
           {{- end }}
-          {{- with .Values.proxy.http }}
+          {{- with .http }}
             - name: http_proxy
               value: {{ . }}
           {{- end }}
-          {{- with .Values.proxy.none }}
+          {{- with .none }}
             - name: no_proxy
               value: {{ . }}
+          {{- end }}
           {{- end }}
             - name: NEW_RELIC_API_KEY
               valueFrom:
