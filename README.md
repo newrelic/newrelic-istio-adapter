@@ -15,7 +15,7 @@ For more information about out-of-process Istio Mixer adapters, please see the [
 
 Currently (2019-08-30) the following quotas apply to APM Professional accounts:
 
-*   500,000 Metrics / minute
+*   500,000 metrics / minute
     *   250,000 unique metric timeseries
     *   50 attributes per metric
 *   5,000 Spans / minute
