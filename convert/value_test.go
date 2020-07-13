@@ -38,6 +38,12 @@ func TestValueToFloat64(t *testing.T) {
 		{true, &policy.Value{Value: &policy.Value_DurationValue{DurationValue: &policy.Duration{
 			Value: types.DurationProto(time.Second),
 		}}}, float64(1000.0)},
+		{true, &policy.Value{Value: &policy.Value_DurationValue{DurationValue: &policy.Duration{
+			Value: types.DurationProto(123 * time.Millisecond),
+		}}}, float64(123.0)},
+		{true, &policy.Value{Value: &policy.Value_DurationValue{DurationValue: &policy.Duration{
+			Value: types.DurationProto(4567 * time.Millisecond),
+		}}}, float64(4567.0)},
 		{false, &policy.Value{Value: &policy.Value_BoolValue{BoolValue: true}}, float64(0.0)},
 	}
 
@@ -75,6 +81,12 @@ func TestValueToAttribute(t *testing.T) {
 		{true, &policy.Value{Value: &policy.Value_DurationValue{DurationValue: &policy.Duration{
 			Value: types.DurationProto(time.Second),
 		}}}, float64(1000.0)},
+		{true, &policy.Value{Value: &policy.Value_DurationValue{DurationValue: &policy.Duration{
+			Value: types.DurationProto(123 * time.Millisecond),
+		}}}, float64(123.0)},
+		{true, &policy.Value{Value: &policy.Value_DurationValue{DurationValue: &policy.Duration{
+			Value: types.DurationProto(4567 * time.Millisecond),
+		}}}, float64(4567.0)},
 		{true, &policy.Value{Value: &policy.Value_BoolValue{BoolValue: true}}, true},
 		{true, &policy.Value{Value: &policy.Value_TimestampValue{TimestampValue: &policy.TimeStamp{
 			Value: testTime,
