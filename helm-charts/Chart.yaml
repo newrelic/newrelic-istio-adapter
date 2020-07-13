@@ -17,7 +17,7 @@ apiVersion: v1
 name: newrelic-istio-adapter
 description: A Helm chart for New Relic's Adapter for Istio
 version: 1.0.0
-appVersion: "2.0.1"
+appVersion: "2.0.2"
 keywords:
   - istio
   - mixer
