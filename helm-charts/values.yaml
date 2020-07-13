@@ -34,10 +34,10 @@ clusterName: istio-cluster
 # Valid logging levels are: debug, info, warn, error, fatal, or none
 #logLevel: error
 
-# Override the New Relic Metrics API endpoint (used for debugging).
+# Override the New Relic Metrics API endpoint (eg. set to New Relic EU endpoints or debugging).
 #metricsHost: ""
 
-# Override the New Relic Trace API endpoint (used for debugging).
+# Override the New Relic Trace API endpoint (eg. set to New Relic EU endpoints or debugging).
 #spansHost: ""
 
 authentication:
