@@ -66,6 +66,7 @@ helm template newrelic-istio-adapter . \
     > newrelic-istio-adapter.yaml
 kubectl apply -f newrelic-istio-adapter.yaml
 ```
+> **Tip**: If you use an EU region New Relic account, make sure you configure the appropriate Metric/Trace API endpoints (metricsHost/spansHost). Please refer to the [helm-charts configuration](./helm-charts/README.md#configuration).
 
 ### Validate
 
