@@ -33,7 +33,7 @@ func ValueToFloat64(in *policy.Value) (float64, error) {
 		return t.DoubleValue, nil
 	case *policy.Value_DurationValue:
 		// milliseconds is the NR preferred unit
-		return float64(t.DurationValue.Value.Seconds) * 1000.0, nil
+		return float64(t.DurationValue.Value.Seconds)*1000.0 + float64(t.DurationValue.Value.Nanos)*0.000001, nil
 	default:
 		return 0.0, fmt.Errorf("unknown float64 conversion for %v (%T)", t, t)
 	}
@@ -64,7 +64,7 @@ func ValueToAttribute(in *policy.Value) interface{} {
 	case *policy.Value_BoolValue:
 		return t.BoolValue
 	case *policy.Value_DurationValue:
-		return float64(t.DurationValue.Value.Seconds) * 1000.0 // milliseconds NR preferred unit
+		return float64(t.DurationValue.Value.Seconds)*1000.0 + float64(t.DurationValue.Value.Nanos)*0.000001 // milliseconds NR preferred unit
 	case *policy.Value_TimestampValue:
 		return float64(t.TimestampValue.Value.Seconds) * 1000.0
 	case *policy.Value_IpAddressValue:
