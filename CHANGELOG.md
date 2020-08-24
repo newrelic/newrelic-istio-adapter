@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Unreleased
 
+## 2.0.3
+
+### Fixed
+
+* Updated adapter specification manifest to include a non-nil description.
+    This resolves a bug causing a deployment failure with Istio 1.7. [#37](https://github.com/newrelic/newrelic-istio-adapter/pull/37)
+
 ## 2.0.2
 
 ### Changed
