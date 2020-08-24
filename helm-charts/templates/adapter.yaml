@@ -26,7 +26,7 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/version: {{ .Chart.AppVersion }}
 spec:
-  description:
+  description: newrelic
   session_based: false
   templates:
   - metric
