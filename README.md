@@ -1,3 +1,9 @@
+[![Archived header](https://github.com/newrelic/opensource-website/raw/main/src/images/categories/Archived.png)](https://opensource.newrelic.com/oss-category/#archived)
+
+# Archival Notice
+
+❗Notice: This project has been archived _as is_ and is no longer actively maintained.
+
 [![Go Report Card](https://goreportcard.com/badge/github.com/newrelic/newrelic-istio-adapter)](https://goreportcard.com/report/github.com/newrelic/newrelic-istio-adapter)
 [![Build Status](https://travis-ci.com/newrelic/newrelic-istio-adapter.svg?branch=master)](https://travis-ci.com/newrelic/newrelic-istio-adapter)
 
